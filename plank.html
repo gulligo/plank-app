@@ -1,677 +1,143 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>플랭크</title>
-<style>
-:root{
-  --bg:#f0f4ff;
-  --card:#ffffff;
-  --primary:#5b8fff;
-  --primary2:#a78bfa;
-  --orange:#ff8a2a;
-  --green:#19c37d;
-  --text:#333;
-  --line:#dde3f5;
-  --soft:#e8eeff;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-body{
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  overflow-x:hidden;
-}
-.top-tabs{
-  position:sticky;top:0;z-index:50;
-  display:flex;background:#fff;
-  border-bottom:1px solid var(--line);
-}
-.top-tabs button{
-  flex:1;border:none;background:none;
-  padding:10px 15px;font-size:15px;font-weight:800;color:#666;
-}
-.top-tabs button.active{color:var(--primary)}
-.page{display:none;padding:8px 8px 180px}
-.page.active{display:block}
-.card{
-  background:var(--card);border-radius:16px;
-  padding:10px 14px;margin-bottom:8px;
-}
-.goal-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.goal-label{font-size:12px;color:#999}
-.goal-input{
-  width:90px;height:32px;border-radius:12px;border:2px solid var(--line);
-  text-align:center;font-size:15px;font-weight:800;color:#444;background:#f5f8ff;
-}
-.goal-pct{font-size:14px;font-weight:900;color:var(--orange);margin-left:auto}
-.timer-wrap{
-  display:flex;flex-direction:column;align-items:center;
-  padding:10px 0 6px;
-}
-.ring-container{position:relative;width:220px;height:220px;margin:0 auto}
-.ring-svg{width:220px;height:220px;transform:rotate(-90deg)}
-.ring-bg{fill:none;stroke:#e8eeff;stroke-width:14}
-.ring-progress{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 0.5s linear, stroke 0.3s}
-.ring-over{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 0.5s linear}
-.timer-center{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;
-}
-.timer-display{font-size:50px;font-weight:900;color:var(--primary);line-height:1}
-.timer-sub{font-size:12px;color:#999;margin-top:6px}
-.btn-row{display:flex;justify-content:center;gap:16px;margin-top:10px}
-.start-btn{
-  border:none;background:linear-gradient(135deg,var(--primary),var(--primary2));
-  color:#fff;font-size:20px;font-weight:900;
-  padding:14px 40px;border-radius:999px;
-  box-shadow:0 6px 20px rgba(91,143,255,.3);
-}
-.stop-btn{
-  border:none;background:linear-gradient(135deg,#ff6b6b,#ff8a2a);
-  color:#fff;font-size:20px;font-weight:900;
-  padding:14px 40px;border-radius:999px;
-  box-shadow:0 6px 20px rgba(255,107,107,.3);
-}
-.reset-btn{
-  border:none;background:#eef1ff;color:#888;
-  font-size:18px;font-weight:800;
-  padding:14px 20px;border-radius:999px;
-}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:0}
-.stat-card{background:#fff;border-radius:14px;padding:12px;text-align:center;}
-.stat-label{font-size:11px;color:#9fa8c0;margin-bottom:4px}
-.stat-value{font-size:22px;font-weight:900}
-.blue{color:var(--primary)}
-.orange{color:var(--orange)}
-.green{color:var(--green)}
-.purple{color:var(--primary2)}
-.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.cal-nav{background:none;border:1px solid var(--line);border-radius:8px;font-size:22px;padding:2px 12px;color:var(--primary);}
-.cal-title{font-size:15px;font-weight:900;color:#444}
-.cal-info{font-size:11px;color:#999}
-.cal-heads{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
-.cal-head{text-align:center;font-size:11px;color:#7b6888;font-weight:800}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px 4px}
-.day{min-height:44px;border-radius:10px;background:#f7f9ff;padding:3px 1px 4px;text-align:center}
-.day.empty{background:transparent}
-.day-bubble-wrap{height:33px;display:flex;align-items:center;justify-content:center}
-.day-bubble{border-radius:50%;background:linear-gradient(180deg,#b8ccff,#a0b8ff);display:flex;align-items:center;justify-content:center;color:#3a5fd9;font-weight:900;font-size:13px;}
-.day-count{margin-top:2px;font-size:10px;font-weight:900;color:#7a9adb;min-height:12px}
-.graph-tabs{display:flex;gap:8px;margin:6px 0 10px}
-.chip{border:none;padding:8px 14px;border-radius:999px;background:#eef1ff;color:#666;font-weight:800;font-size:14px}
-.chip.active{background:var(--primary);color:#fff}
-.graph-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.graph-nav-btn{width:52px;height:52px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:24px;color:var(--primary);}
-.graph-label{font-size:15px;font-weight:900;color:#444}
-.graph-info{font-size:12px;color:#999}
-.chartWrap{display:flex;align-items:flex-end;gap:1px;height:300px;overflow-x:auto;overflow-y:hidden;padding-top:20px;background-image:linear-gradient(#e8eeff 1px,transparent 1px);background-size:100% 60px;}
-.barItem{flex:1;text-align:center;padding:0 1px;min-width:18px}
-.barVal{font-size:8px;color:#555;margin-bottom:2px}
-.barCol{width:100%;background:var(--primary);border-radius:2px 2px 0 0;min-height:1px}
-.barLbl{font-size:8px;color:#555;margin-top:3px}
-.y-axis{display:flex;flex-direction:column;justify-content:space-between;height:280px;font-size:10px;color:#999;padding-right:4px}
-.graph-container{display:flex;position:relative;overflow:hidden;height:300px}
-.settings-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f4ff}
-.settings-row:last-child{border-bottom:none}
-.toggle{width:54px;height:32px;border-radius:999px;background:#ddd;position:relative;border:none}
-.toggle::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
-.toggle.on{background:var(--primary)}
-.toggle.on::after{left:26px}
-.notice{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(34,34,34,.92);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:100;max-width:88vw;white-space:nowrap;}
-.notice.show{opacity:1}
-.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
-.confetti{position:absolute;top:-10px;width:10px;height:14px;opacity:0;animation:confetti-fall 2.5s ease-in forwards}
-@keyframes confetti-fall{
-  0%{transform:translateY(0) rotate(0deg);opacity:1}
-  100%{transform:translateY(100vh) rotate(720deg);opacity:0}
-}
-.section-label{font-size:13px;font-weight:900;color:#444}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>플랭크 도전 - 용용님</title>
+    <style>
+        /* CSS: 스타일 디자인 */
+        body { background: #121212; color: white; font-family: sans-serif; margin: 0; text-align: center; }
+        .progress-container { width: 100%; height: 30px; background: #333; position: relative; }
+        #progress-bar { width: 0%; height: 100%; background: #00ff88; transition: 0.3s; }
+        #percent-text { position: absolute; right: 10px; top: 5px; font-weight: bold; }
+        .circle-timer { position: relative; width: 250px; height: 250px; margin: 40px auto; }
+        svg { transform: rotate(-90deg); }
+        .base-circle { fill: none; stroke: #333; stroke-width: 15; }
+        #moving-circle {
+            fill: none; stroke: #00ff88; stroke-width: 15;
+            stroke-dasharray: 691; stroke-dashoffset: 0;
+            stroke-linecap: round; transition: 1s linear;
+        }
+        #display {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem; font-weight: bold;
+        }
+        .input-group { margin: 20px; font-size: 1.2rem; }
+        input { width: 80px; padding: 10px; font-size: 1.2rem; border-radius: 5px; text-align: center; background: #222; color: white; border: 1px solid #444; }
+        button { padding: 15px 30px; font-size: 1.2rem; margin: 10px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
+        #startBtn { background: #00ff88; color: black; }
+        #resetBtn { background: #555; color: white; }
+    </style>
 </head>
 <body>
-<div class="top-tabs">
-  <button class="tab active" data-page="home">플랭크</button>
-  <button class="tab" data-page="calendar">달력</button>
-  <button class="tab" data-page="graph">그래프</button>
-  <button class="tab" data-page="settings">설정</button>
-</div>
-<div id="home" class="page active">
-  <div class="card">
-    <div class="goal-label">목표 시간</div>
-    <div class="goal-row">
-      <input id="goalInput" class="goal-input" type="number" min="10" value="120" />
-      <span style="font-size:13px;color:#999">초</span>
-      <div id="goalPct" class="goal-pct">0%</div>
+
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+        <span id="percent-text">0%</span>
     </div>
-    <div style="height:6px;background:#eef1ff;border-radius:999px;overflow:hidden;margin-top:4px">
-      <div id="goalBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--primary2));border-radius:999px;transition:width .3s"></div>
-    </div>
-  </div>
-  <div class="card timer-wrap">
-    <div class="ring-container">
-      <svg class="ring-svg" viewBox="0 0 220 220">
-        <circle class="ring-bg" cx="110" cy="110" r="96"/>
-        <circle id="ringProgress" class="ring-progress" cx="110" cy="110" r="96"
-          stroke="url(#grad1)"
-          stroke-dasharray="603.2" stroke-dashoffset="603.2"/>
-        <circle id="ringOver" class="ring-over" cx="110" cy="110" r="96"
-          stroke="var(--orange)"
-          stroke-dasharray="603.2" stroke-dashoffset="603.2"/>
-        <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:var(--primary)"/>
-            <stop offset="100%" style="stop-color:var(--primary2)"/>
-          </linearGradient>
-        </defs>
-      </svg>
-      <div class="timer-center">
-        <div id="timerDisplay" class="timer-display">0:00</div>
-        <div id="timerSub" class="timer-sub">시작 버튼을 누르세요</div>
-      </div>
-    </div>
-    <div class="btn-row">
-      <button id="startBtn" class="start-btn" onclick="startTimer()">▶ 시작</button>
-      <button id="resetBtn" class="reset-btn" onclick="resetTimer()">↺</button>
-    </div>
-  </div>
-  <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-label">오늘 기록</div>
-      <div id="todayRecord" class="stat-value blue">-</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">최고 기록</div>
-      <div id="bestRecord" class="stat-value orange">-</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">현재 연속</div>
-      <div id="currentStreak" class="stat-value green">0일</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">최고 연속</div>
-      <div id="bestStreak" class="stat-value purple">0일</div>
-    </div>
-  </div>
-</div>
-<div id="calendar" class="page">
-  <div class="card">
-    <div class="cal-header">
-      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-      <div style="text-align:center">
-        <div id="calTitle" class="cal-title">2026년 4월</div>
-        <div style="display:flex;gap:10px;margin-top:2px">
-          <span class="cal-info">최고 <span id="calMax" style="color:var(--orange)">-</span></span>
-          <span class="cal-info">합계 <span id="calSum" style="color:var(--primary)">-</span></span>
+
+    <div class="main-container">
+        <h1 style="margin-top: 20px;">플랭크 도전</h1>
+        
+        <div class="circle-timer">
+            <svg width="250" height="250">
+                <circle cx="125" cy="125" r="110" class="base-circle"></circle>
+                <circle cx="125" cy="125" r="110" id="moving-circle"></circle>
+            </svg>
+            <div id="display">대기</div>
         </div>
-      </div>
-      <button class="cal-nav" onclick="changeMonth(1)">›</button>
-    </div>
-    <div class="cal-heads">
-      <div class="cal-head">일</div><div class="cal-head">월</div><div class="cal-head">화</div>
-      <div class="cal-head">수</div><div class="cal-head">목</div><div class="cal-head">금</div><div class="cal-head">토</div>
-    </div>
-    <div id="calendarGrid" class="calendar-grid"></div>
-  </div>
-</div>
-<div id="graph" class="page">
-  <div class="card">
-    <div class="graph-tabs">
-      <button class="chip active graph-chip" data-graph="day">일</button>
-      <button class="chip graph-chip" data-graph="month">월</button>
-      <button class="chip graph-chip" data-graph="year">년</button>
-    </div>
-    <div class="graph-nav">
-      <button class="graph-nav-btn" onclick="changeGraphMonth(-1)">‹</button>
-      <div style="text-align:center">
-        <div id="graphLabel" class="graph-label"></div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:2px">
-          <span class="graph-info">최고 <span id="graphMax" style="color:var(--orange)">-</span></span>
-          <span class="graph-info">합계 <span id="graphSum" style="color:var(--primary)">-</span></span>
+
+        <div class="input-group">
+            <input type="number" id="targetInput" value="80"> 초 설정
         </div>
-      </div>
-      <button class="graph-nav-btn" onclick="changeGraphMonth(1)">›</button>
+
+        <div class="controls">
+            <button id="startBtn">운동 시작</button>
+            <button id="resetBtn">초기화</button>
+        </div>
     </div>
-  </div>
-  <div class="graph-container">
-    <div class="y-axis">
-      <div id="yTop">0</div>
-      <div id="yMid">0</div>
-      <div id="yBottom">0</div>
-    </div>
-    <div id="chartWrap" class="chartWrap" style="flex:1"></div>
-  </div>
-</div>
-<div id="settings" class="page">
-  <div class="card">
-    <div class="settings-row">
-      <div class="section-label">진동</div>
-      <button id="togVibrate" class="toggle on" onclick="toggleSetting('vibrate')"></button>
-    </div>
-    <div class="settings-row">
-      <div class="section-label">음성 알림</div>
-      <button id="togSound" class="toggle on" onclick="toggleSetting('sound')"></button>
-    </div>
-    <div class="settings-row">
-      <button onclick="backupData()" style="border:none;background:#eef1ff;color:var(--primary);font-weight:800;padding:10px 20px;border-radius:999px;font-size:14px;">기록 백업</button>
-      <button onclick="restoreData()" style="border:none;background:#eef1ff;color:var(--primary);font-weight:800;padding:10px 20px;border-radius:999px;font-size:14px;">기록 복구</button>
-    </div>
-  </div>
-</div>
-<input type="file" id="restoreFile" style="display:none">
-<div id="notice" class="notice"></div>
-<script>
-const KEY = 'plank_app_v1';
-const CIRCUMFERENCE = 2 * Math.PI * 96;
-const defaultData = {
-  records: {},
-  goalSec: 120,
-  settings: { vibrate: true, sound: true }
-};
-function clone(v){ return JSON.parse(JSON.stringify(v)); }
-function loadData(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if(!raw) return clone(defaultData);
-    const parsed = JSON.parse(raw);
-    return { ...clone(defaultData), ...parsed, settings: { ...defaultData.settings, ...(parsed.settings||{}) } };
-  }catch(e){ return clone(defaultData); }
-}
-function saveData(){ localStorage.setItem(KEY, JSON.stringify(data)); }
-const data = loadData();
-let timerInterval = null;
-let elapsed = 0;
-let running = false;
-let goalReached = false;
-let announced30 = false;
-let announced60 = false;
-let currentPage = 'home';
-let calViewDate = new Date();
-let graphViewDate = new Date();
-function ymd(d = new Date()){
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function fmtTime(sec){
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${String(s).padStart(2,'0')}`;
-}
-function speak(text){
-  if(!data.settings.sound) return;
-  try{
-    speechSynthesis.cancel();
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'ko-KR';
-    msg.pitch = 1.05;
-    msg.rate = 0.85;
-    const doSpeak = () => {
-      const voices = speechSynthesis.getVoices();
-      const ko = voices.find(v => v.lang && v.lang.toLowerCase().includes('ko'));
-      if(ko) msg.voice = ko;
-      speechSynthesis.speak(msg);
-    };
-    if(speechSynthesis.getVoices().length === 0){
-      speechSynthesis.onvoiceschanged = doSpeak;
-    } else {
-      doSpeak();
-    }
-  }catch(e){}
-}
-function vibrate(pattern){
-  if(data.settings.vibrate && navigator.vibrate) navigator.vibrate(pattern);
-}
-function showNotice(text){
-  const n = document.getElementById('notice');
-  n.textContent = text;
-  n.classList.add('show');
-  clearTimeout(showNotice._t);
-  showNotice._t = setTimeout(() => n.classList.remove('show'), 2000);
-}
-function launchConfetti(){
-  const container = document.createElement('div');
-  container.className = 'confetti-container';
-  document.body.appendChild(container);
-  const colors = ['#5b8fff','#ff8a2a','#19c37d','#f43f5e','#facc15','#a78bfa'];
-  for(let i = 0; i < 80; i++){
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random()*100 + '%';
-    c.style.background = colors[Math.floor(Math.random()*colors.length)];
-    c.style.width = (Math.random()*8+6) + 'px';
-    c.style.height = (Math.random()*10+8) + 'px';
-    c.style.animationDelay = Math.random()*1.2 + 's';
-    c.style.animationDuration = (Math.random()*1.5+2) + 's';
-    c.style.borderRadius = Math.random()>0.5 ? '50%' : '0';
-    container.appendChild(c);
-  }
-  setTimeout(() => container.remove(), 4000);
-}
-function updateRing(){
-  const goal = data.goalSec;
-  const ring = document.getElementById('ringProgress');
-  const ringOver = document.getElementById('ringOver');
-  if(elapsed <= goal){
-    const pct = elapsed / goal;
-    const offset = CIRCUMFERENCE * (1 - pct);
-    ring.style.strokeDashoffset = offset;
-    ringOver.style.strokeDashoffset = CIRCUMFERENCE;
-  } else {
-    ring.style.strokeDashoffset = 0;
-    const overElapsed = elapsed - goal;
-    const overPct = (overElapsed % goal) / goal;
-    const overOffset = CIRCUMFERENCE * (1 - overPct);
-    ringOver.style.strokeDashoffset = overOffset;
-  }
-  const pct = Math.min(100, Math.round(elapsed / goal * 100));
-  document.getElementById('goalBar').style.width = pct + '%';
-  document.getElementById('goalPct').textContent = pct + '%';
-}
-function updateDisplay(){
-  document.getElementById('timerDisplay').textContent = fmtTime(elapsed);
-  updateRing();
-}
-function checkAnnouncements(){
-  const goal = data.goalSec;
-  const remaining = goal - elapsed;
-  if(!announced60 && remaining === 60){
-    announced60 = true;
-    speak('1분 남았습니다');
-    vibrate([50, 30, 50]);
-  }
-  if(!announced30 && remaining === 30){
-    announced30 = true;
-    speak('30초 남았습니다');
-    vibrate([50, 30, 50]);
-  }
-  if(remaining >= 1 && remaining <= 5){
-    speak(String(remaining));
-    vibrate(30);
-  }
-  if(!goalReached && elapsed >= goal){
-    goalReached = true;
-    speak('목표 달성!');
-    vibrate([100, 50, 100, 50, 200]);
-    showNotice('🎉 목표 달성!');
-    launchConfetti();
-  }
-}
-function startTimer(){
-  if(running){
-    running = false;
-    clearInterval(timerInterval);
-    document.getElementById('startBtn').textContent = '▶ 시작';
-    document.getElementById('startBtn').className = 'start-btn';
-    document.getElementById('timerSub').textContent = '시작 버튼을 누르세요';
-    if(elapsed > 0){
-      const today = ymd();
-      const prev = data.records[today] || 0;
-      if(elapsed > prev){
-        data.records[today] = elapsed;
-        saveData();
-        showNotice('기록 저장!');
-      }
-      render();
-      renderCalendar();
-      renderChart();
-    }
-  } else {
-    running = true;
-    goalReached = elapsed >= data.goalSec;
-    announced30 = (data.goalSec - elapsed) <= 30;
-    announced60 = (data.goalSec - elapsed) <= 60;
-    document.getElementById('startBtn').textContent = '⏸ 정지';
-    document.getElementById('startBtn').className = 'stop-btn';
-    document.getElementById('timerSub').textContent = '플랭크 중...';
-    timerInterval = setInterval(() => {
-      elapsed++;
-      updateDisplay();
-      checkAnnouncements();
-    }, 1000);
-  }
-}
-function resetTimer(){
-  running = false;
-  clearInterval(timerInterval);
-  elapsed = 0;
-  goalReached = false;
-  announced30 = false;
-  announced60 = false;
-  updateDisplay();
-  document.getElementById('startBtn').textContent = '▶ 시작';
-  document.getElementById('startBtn').className = 'start-btn';
-  document.getElementById('timerSub').textContent = '시작 버튼을 누르세요';
-  document.getElementById('goalBar').style.width = '0%';
-  document.getElementById('goalPct').textContent = '0%';
-}
-function toggleSetting(key){
-  data.settings[key] = !data.settings[key];
-  saveData();
-  renderSettings();
-}
-function renderSettings(){
-  ['vibrate','sound'].forEach(k => {
-    const el = document.getElementById('tog' + k.charAt(0).toUpperCase() + k.slice(1));
-    if(el) el.classList.toggle('on', data.settings[k]);
-  });
-}
-function calcStreaks(){
-  const keys = Object.keys(data.records).filter(k => data.records[k] > 0).sort();
-  if(!keys.length) return { current: 0, best: 0 };
-  let best = 1, cur = 1;
-  for(let i = 1; i < keys.length; i++){
-    const diff = (new Date(keys[i]) - new Date(keys[i-1])) / 86400000;
-    if(diff === 1){ cur++; best = Math.max(best, cur); } else cur = 1;
-  }
-  let current = 0;
-  const today = new Date(); today.setHours(0,0,0,0);
-  for(let i = 0;;i++){
-    const d = new Date(today); d.setDate(today.getDate()-i);
-    if(data.records[ymd(d)] > 0) current++;
-    else break;
-  }
-  return { current, best };
-}
-function render(){
-  const today = ymd();
-  const todayVal = data.records[today] || 0;
-  const allVals = Object.values(data.records);
-  const bestVal = allVals.length ? Math.max(...allVals) : 0;
-  const streaks = calcStreaks();
-  document.getElementById('todayRecord').textContent = todayVal > 0 ? fmtTime(todayVal) : '-';
-  document.getElementById('bestRecord').textContent = bestVal > 0 ? fmtTime(bestVal) : '-';
-  document.getElementById('currentStreak').textContent = streaks.current + '일';
-  document.getElementById('bestStreak').textContent = streaks.best + '일';
-  renderSettings();
-}
-function bubbleSize(count, max){
-  if(count <= 0) return 0;
-  const ratio = Math.min(1, count / Math.max(1, max));
-  return Math.round(14 + (46 - 14) * ratio);
-}
-function renderCalendar(){
-  const grid = document.getElementById('calendarGrid');
-  grid.innerHTML = '';
-  const y = calViewDate.getFullYear();
-  const m = calViewDate.getMonth();
-  const firstDay = new Date(y, m, 1).getDay();
-  const lastDate = new Date(y, m+1, 0).getDate();
-  const todayKey = ymd();
-  const mPrefix = `${y}-${String(m+1).padStart(2,'0')}-`;
-  const mVals = Object.keys(data.records).filter(k => k.startsWith(mPrefix)).map(k => data.records[k]);
-  const mSum = mVals.reduce((a,b) => a+b, 0);
-  const mMax = mVals.length ? Math.max(...mVals) : 0;
-  const maxKey = mMax > 0 ? Object.keys(data.records).filter(k => k.startsWith(mPrefix)).find(k => data.records[k] === mMax) : null;
-  document.getElementById('calTitle').textContent = `${y}년 ${m+1}월`;
-  document.getElementById('calMax').textContent = mMax > 0 ? fmtTime(mMax) : '-';
-  document.getElementById('calSum').textContent = mSum > 0 ? fmtTime(mSum) : '-';
-  const days = [];
-  for(let i = 1; i <= lastDate; i++) days.push(new Date(y, m, i));
-  const counts = days.map(d => data.records[ymd(d)] || 0);
-  const maxCount = Math.max(1, ...counts);
-  for(let i = 0; i < firstDay; i++){
-    const e = document.createElement('div');
-    e.className = 'day empty';
-    grid.appendChild(e);
-  }
-  days.forEach(d => {
-    const key = ymd(d);
-    const count = data.records[key] || 0;
-    const el = document.createElement('div');
-    el.className = 'day';
-    const wrap = document.createElement('div');
-    wrap.className = 'day-bubble-wrap';
-    const bubble = document.createElement('div');
-    bubble.className = 'day-bubble';
-    const sz = count > 0 ? bubbleSize(count, maxCount) : 0;
-    bubble.style.width = sz + 'px';
-    bubble.style.height = sz + 'px';
-    bubble.textContent = d.getDate();
-    bubble.style.fontSize = '13px';
-    bubble.style.fontWeight = 'bold';
-    if(key === todayKey){
-      bubble.style.outline = '2px solid var(--primary)';
-      bubble.style.outlineOffset = '1px';
-    }
-    if(key === maxKey && mMax > 0){
-      bubble.style.border = '3px solid var(--orange)';
-      bubble.style.boxSizing = 'border-box';
-    }
-    if(count === 0){
-      bubble.style.background = '#f0f4ff';
-      bubble.style.color = '#b0b8d0';
-    }
-    wrap.appendChild(bubble);
-    const cnt = document.createElement('div');
-    cnt.className = 'day-count';
-    cnt.textContent = count > 0 ? fmtTime(count) : '';
-    el.appendChild(wrap);
-    el.appendChild(cnt);
-    grid.appendChild(el);
-  });
-}
-function getDailySeries(){
-  const y = graphViewDate.getFullYear();
-  const m = graphViewDate.getMonth();
-  const last = new Date(y, m+1, 0).getDate();
-  const arr = [];
-  for(let i = 1; i <= last; i++){
-    const k = ymd(new Date(y, m, i));
-    arr.push({ label: i, value: data.records[k] || 0 });
-  }
-  return arr;
-}
-function getMonthlySeries(){
-  const y = graphViewDate.getFullYear();
-  const arr = [];
-  for(let m = 1; m <= 12; m++){
-    const prefix = `${y}-${String(m).padStart(2,'0')}-`;
-    const sum = Object.keys(data.records).filter(k => k.startsWith(prefix)).reduce((a,k) => a + data.records[k], 0);
-    arr.push({ label: m + '월', value: sum });
-  }
-  return arr;
-}
-function getYearlySeries(){
-  const arr = [];
-  const now = new Date();
-  for(let i = 2; i >= 0; i--){
-    const y = now.getFullYear() - i;
-    const sum = Object.keys(data.records).filter(k => k.startsWith(String(y))).reduce((a,k) => a + data.records[k], 0);
-    arr.push({ label: String(y), value: sum });
-  }
-  return arr;
-}
-function renderChart(){
-  const wrap = document.getElementById('chartWrap');
-  wrap.innerHTML = '';
-  const mode = data.graphMode || 'day';
-  document.querySelectorAll('.graph-chip').forEach(ch => {
-    ch.classList.toggle('active', ch.dataset.graph === mode);
-  });
-  let arr = mode === 'month' ? getMonthlySeries() : mode === 'year' ? getYearlySeries() : getDailySeries();
-  const label = document.getElementById('graphLabel');
-  if(mode === 'day') label.textContent = `${graphViewDate.getFullYear()}년 ${graphViewDate.getMonth()+1}월`;
-  else if(mode === 'month') label.textContent = `${graphViewDate.getFullYear()}년`;
-  else label.textContent = '연도별';
-  const sumVal = arr.reduce((a,b) => a+b.value, 0);
-  const maxVal = arr.length ? Math.max(...arr.map(x => x.value)) : 0;
-  document.getElementById('graphMax').textContent = maxVal > 0 ? maxVal : '-';
-  document.getElementById('graphSum').textContent = sumVal > 0 ? sumVal : '-';
-  const max = Math.max(1, maxVal);
-  document.getElementById('yTop').textContent = max;
-  document.getElementById('yMid').textContent = Math.round(max/2);
-  document.getElementById('yBottom').textContent = 0;
-  arr.forEach(item => {
-    const h = Math.max(2, Math.round((item.value / max) * 260));
-    const div = document.createElement('div');
-    div.className = 'barItem';
-    div.innerHTML = `<div class="barVal">${item.value > 0 ? item.value : ''}</div><div class="barCol" style="height:${h}px"></div><div class="barLbl">${item.label}</div>`;
-    wrap.appendChild(div);
-  });
-}
-function changeMonth(dir){
-  calViewDate.setMonth(calViewDate.getMonth() + dir);
-  renderCalendar();
-}
-function changeGraphMonth(dir){
-  const mode = data.graphMode || 'day';
-  if(mode === 'day') graphViewDate.setMonth(graphViewDate.getMonth() + dir);
-  else graphViewDate.setFullYear(graphViewDate.getFullYear() + dir);
-  renderChart();
-}
-function backupData(){
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'plank_backup.json';
-  a.click();
-}
-function restoreData(){
-  document.getElementById('restoreFile').click();
-}
-document.getElementById('restoreFile').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try{
-      const parsed = JSON.parse(ev.target.result);
-      Object.assign(data, parsed);
-      saveData();
-      render();
-      renderCalendar();
-      renderChart();
-      showNotice('복구 완료!');
-    }catch(err){ showNotice('복구 실패: 파일 오류'); }
-  };
-  reader.readAsText(file);
-});
-document.querySelectorAll('.tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentPage = btn.dataset.page;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(currentPage).classList.add('active');
-  });
-});
-document.querySelectorAll('.graph-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    data.graphMode = chip.dataset.graph;
-    saveData();
-    renderChart();
-  });
-});
-document.getElementById('goalInput').value = data.goalSec;
-document.getElementById('goalInput').addEventListener('change', e => {
-  data.goalSec = Math.max(10, parseInt(e.target.value || '120', 10));
-  saveData();
-  if(!running) resetTimer();
-});
-render();
-renderCalendar();
-renderChart();
-</script>
+
+    <script>
+        /* JavaScript: 핵심 로직 */
+        let timer;
+        let totalTime, timeLeft;
+        const display = document.getElementById('display');
+        const progressBar = document.getElementById('progress-bar');
+        const percentText = document.getElementById('percent-text');
+        const movingCircle = document.getElementById('moving-circle');
+        const circleLength = 691; 
+
+        function speak(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'ko-KR';
+            window.speechSynthesis.speak(msg);
+        }
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (timer) return;
+            
+            totalTime = parseInt(document.getElementById('targetInput').value);
+            timeLeft = totalTime;
+            
+            let ready = 3;
+            // 시작 전 3, 2, 1 음성 및 화면 표시
+            const readyInt = setInterval(() => {
+                if (ready > 0) {
+                    display.textContent = ready;
+                    speak(ready);
+                    ready--;
+                } else {
+                    clearInterval(readyInt);
+                    display.textContent = "시작!";
+                    speak("시작");
+                    setTimeout(startPlank, 500);
+                }
+            }, 1000);
+        });
+
+        function startPlank() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    display.textContent = timeLeft + "초";
+                    
+                    let progress = ((totalTime - timeLeft) / totalTime) * 100;
+                    progressBar.style.width = progress + "%";
+                    percentText.textContent = Math.floor(progress) + "%";
+
+                    let offset = circleLength - (progress / 100) * circleLength;
+                    movingCircle.style.strokeDashoffset = offset;
+
+                    // 색상 변경
+                    if (progress > 80) {
+                        progressBar.style.background = "#ff4444";
+                        movingCircle.style.stroke = "#ff4444";
+                    } else if (progress > 50) {
+                        progressBar.style.background = "#ffbb00";
+                        movingCircle.style.stroke = "#ffbb00";
+                    }
+
+                    // 음성 안내
+                    if (timeLeft === 80 || timeLeft === 60 || timeLeft === 30) {
+                        speak(timeLeft + "초 남았습니다");
+                    }
+                    if (timeLeft <= 5 && timeLeft > 0) {
+                        speak(timeLeft);
+                    }
+                } else {
+                    clearInterval(timer);
+                    timer = null;
+                    display.textContent = "성공!";
+                    speak("목표 달성! 고생하셨습니다");
+                    alert("목표 달성!");
+                }
+            }, 1000);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            location.reload(); 
+        });
+    </script>
 </body>
 </html>
