@@ -84,7 +84,7 @@ body{
   font-weight:900;
   color:#666;
 }
-.scale-wrap{margin-top:6px}
+.scale-wrap{margin-top:8px}
 .scale-bar-shell{
   position:relative;
   width:100%;
@@ -197,12 +197,6 @@ body{
   line-height:1.4;
   min-height:36px;
 }
-.touch-guide{
-  margin-top:12px;
-  font-size:13px;
-  color:#7e8798;
-  font-weight:800;
-}
 .stat-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -214,6 +208,10 @@ body{
   padding:12px;
   text-align:center;
   border:1px solid #edf2fd;
+  min-height:96px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 .stat-label{
   font-size:11px;
@@ -224,6 +222,33 @@ body{
 .stat-value{
   font-size:24px;
   font-weight:900;
+}
+.stat-card-double{
+  gap:10px;
+}
+.stat-line{
+  display:grid;
+  grid-template-columns:62px 10px 1fr;
+  align-items:center;
+  font-weight:900;
+  line-height:1.2;
+}
+.stat-line-label{
+  font-size:14px;
+  color:#7f889d;
+  text-align:right;
+  white-space:nowrap;
+}
+.stat-colon{
+  font-size:14px;
+  color:#7f889d;
+  text-align:center;
+}
+.stat-line-value{
+  font-size:22px;
+  font-weight:900;
+  text-align:left;
+  white-space:nowrap;
 }
 .blue{color:var(--blue1)}
 .orange{color:#ff8a2a}
@@ -522,40 +547,36 @@ body{
       </div>
     </div>
   </div>
-<div class="stat-grid">
 
-  <!-- 1번: 한달/연평균 -->
-  <div class="stat-card stat-card-double">
-    <div class="stat-line">
-      <span class="stat-line-label">한달평균</span>
-      <span class="stat-colon">:</span>
-      <span id="monthAvg" class="stat-line-value blue">-</span>
+  <div class="stat-grid">
+    <div class="stat-card stat-card-double">
+      <div class="stat-line">
+        <span class="stat-line-label">한달평균</span>
+        <span class="stat-colon">:</span>
+        <span id="monthAvg" class="stat-line-value blue">-</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-line-label">연평균</span>
+        <span class="stat-colon">:</span>
+        <span id="yearAvg" class="stat-line-value purple">-</span>
+      </div>
     </div>
-    <div class="stat-line">
-      <span class="stat-line-label">연평균</span>
-      <span class="stat-colon">:</span>
-      <span id="yearAvg" class="stat-line-value purple">-</span>
+
+    <div class="stat-card">
+      <div class="stat-label">최고 기록</div>
+      <div id="bestRecord" class="stat-value orange">-</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">현재 연속</div>
+      <div id="currentStreak" class="stat-value green">0일</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">최고 연속</div>
+      <div id="bestStreak" class="stat-value purple">0일</div>
     </div>
   </div>
-
-  <!-- 2번 -->
-  <div class="stat-card">
-    <div class="stat-label">최고 기록</div>
-    <div id="bestRecord" class="stat-value orange">-</div>
-  </div>
-
-  <!-- 3번 -->
-  <div class="stat-card">
-    <div class="stat-label">현재 연속</div>
-    <div id="currentStreak" class="stat-value green">0일</div>
-  </div>
-
-  <!-- 4번 -->
-  <div class="stat-card">
-    <div class="stat-label">최고 연속</div>
-    <div id="bestStreak" class="stat-value purple">0일</div>
-  </div>
-
 </div>
 
 <div id="calendar" class="page">
@@ -634,8 +655,9 @@ body{
 <div id="notice" class="notice"></div>
 
 <script>
-const KEY = 'yongyong_plank_final_v1';
+const KEY = 'yongyong_plank_final_v2';
 const CIRC = 2 * Math.PI * 104;
+
 const defaultData = {
   records: {},
   goalSec: 65,
@@ -735,15 +757,9 @@ function launchConfetti(){
 function formatSec(sec){
   return `${Math.max(0, Math.floor(sec))}초`;
 }
-function getTodayRecord(){
-  return data.records[ymd()] || 0;
-}
 function getBestRecord(){
   const vals = Object.values(data.records);
   return vals.length ? Math.max(...vals) : 0;
-}
-function getTotal(){
-  return Object.values(data.records).reduce((a,b) => a + b, 0);
 }
 function calcStreaks(){
   const keys = Object.keys(data.records).filter(k => data.records[k] > 0).sort();
@@ -770,8 +786,33 @@ function calcStreaks(){
     if((data.records[ymd(d)] || 0) > 0) current++;
     else break;
   }
-
   return { current, best };
+}
+function getMonthAverage(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  let total = 0;
+  for(let d = 1; d <= daysInMonth; d++){
+    const key = ymd(new Date(y, m, d));
+    total += data.records[key] || 0;
+  }
+  return Math.round(total / daysInMonth);
+}
+function getYearAverage(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const daysInYear = ((y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0)) ? 366 : 365;
+  let total = 0;
+  for(let m = 0; m < 12; m++){
+    const last = new Date(y, m + 1, 0).getDate();
+    for(let d = 1; d <= last; d++){
+      const key = ymd(new Date(y, m, d));
+      total += data.records[key] || 0;
+    }
+  }
+  return Math.round(total / daysInYear);
 }
 function getScaleMax(){
   const best = Math.max(getBestRecord(), data.goalSec, 65);
@@ -796,10 +837,10 @@ function updateScaleBar(){
 
   const fill = document.getElementById('scaleFill');
   const marker = document.getElementById('bestMarker');
+
   fill.style.width = fillPct + '%';
   fill.style.background = getMainGradient();
   marker.style.left = bestPct + '%';
-
   document.getElementById('bestLabel').textContent = `최고기록 ${best}초`;
 
   const ticksWrap = document.getElementById('scaleTicks');
@@ -835,7 +876,7 @@ function updateRing(){
 }
 function updateDisplay(){
   document.getElementById('timerDisplay').textContent = formatSec(elapsed);
-  document.getElementById('goalText').textContent = `목표 ${data.goalSec}초`;
+  document.getElementById('goalText').textContent = `기본 ${data.goalSec}초`;
   updateRing();
   updateScaleBar();
 }
@@ -867,7 +908,7 @@ function finishWorkout(){
     showNotice('오늘 더 긴 기록이 저장되어 있습니다');
   }
 
-  document.getElementById('timerSub').textContent = '원형을 누르면 다시 시작합니다';
+  document.getElementById('timerSub').textContent = '원형을 누르면 시작합니다';
   renderStats();
   renderCalendar();
   renderChart();
@@ -903,7 +944,7 @@ function startRealTimer(){
   said60 = (data.goalSec - elapsed) < 60;
   said30 = (data.goalSec - elapsed) < 30;
 
-  document.getElementById('timerSub').textContent = '원형 안쪽을 누르면 종료합니다';
+  document.getElementById('timerSub').textContent = '진행 중';
   updateDisplay();
   checkAnnouncements();
 
@@ -949,9 +990,9 @@ function stopWorkout(){
     countdowning = false;
     clearTimeout(countdownTimeout);
     countdownTimeout = null;
-    document.getElementById('timerDisplay').textContent = '0초';
-    document.getElementById('timerSub').textContent = '원형을 누르면 시작합니다';
+    elapsed = 0;
     updateDisplay();
+    document.getElementById('timerSub').textContent = '원형을 누르면 시작합니다';
     return;
   }
   if(!running) return;
@@ -977,18 +1018,20 @@ function onRingTap(e){
   }
 }
 function renderStats(){
-  const today = getTodayRecord();
   const best = getBestRecord();
   const streak = calcStreaks();
+  const monthAvg = getMonthAverage();
+  const yearAvg = getYearAverage();
 
-  document.getElementById('todayRecord').textContent = today > 0 ? formatSec(today) : '-';
+  document.getElementById('monthAvg').textContent = monthAvg > 0 ? formatSec(monthAvg) : '-';
+  document.getElementById('yearAvg').textContent = yearAvg > 0 ? formatSec(yearAvg) : '-';
   document.getElementById('bestRecord').textContent = best > 0 ? formatSec(best) : '-';
   document.getElementById('currentStreak').textContent = streak.current + '일';
   document.getElementById('bestStreak').textContent = streak.best + '일';
 }
 function bubbleSize(sec, maxSec){
   if(sec <= 0) return 0;
-  const minBase = 10;    // 60초일 때 점보다 조금 큰 크기
+  const minBase = 10;
   const maxBase = 38;
   if(sec <= 60) return minBase;
   const ratio = (sec - 60) / Math.max(1, maxSec - 60);
@@ -1151,8 +1194,6 @@ function changeGraph(dir){
   const mode = data.graphMode || 'day';
   if(mode === 'day'){
     graphViewDate.setMonth(graphViewDate.getMonth() + dir);
-  }else if(mode === 'month'){
-    graphViewDate.setFullYear(graphViewDate.getFullYear() + dir);
   }else{
     graphViewDate.setFullYear(graphViewDate.getFullYear() + dir);
   }
@@ -1177,7 +1218,6 @@ function backupData(){
 function restoreData(){
   document.getElementById('restoreFile').click();
 }
-
 document.getElementById('restoreFile').addEventListener('change', e => {
   const file = e.target.files[0];
   if(!file) return;
@@ -1197,7 +1237,6 @@ document.getElementById('restoreFile').addEventListener('change', e => {
   };
   reader.readAsText(file);
 });
-
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
     currentPage = btn.dataset.page;
@@ -1205,9 +1244,11 @@ document.querySelectorAll('.tab').forEach(btn => {
     btn.classList.add('active');
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(currentPage).classList.add('active');
+
+    if(currentPage === 'calendar') renderCalendar();
+    if(currentPage === 'graph') renderChart();
   });
 });
-
 document.querySelectorAll('.graph-chip').forEach(btn => {
   btn.addEventListener('click', () => {
     data.graphMode = btn.dataset.graph;
@@ -1215,7 +1256,6 @@ document.querySelectorAll('.graph-chip').forEach(btn => {
     renderChart();
   });
 });
-
 document.getElementById('goalInput').addEventListener('change', e => {
   const v = Math.max(1, parseInt(e.target.value || '65', 10));
   data.goalSec = v;
@@ -1228,7 +1268,6 @@ document.getElementById('goalInput').addEventListener('change', e => {
   renderStats();
   renderChart();
 });
-
 document.getElementById('ringHit').addEventListener('click', onRingTap);
 
 function renderAll(){
