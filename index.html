@@ -975,8 +975,8 @@ function startRealTimer(){
   countdowning = false;
   elapsed = 1;
   goalReached = elapsed >= data.goalSec;
-  said60 = (data.goalSec - elapsed) < 60;
-  said30 = (data.goalSec - elapsed) < 30;
+  said60 = false;
+  said30 = false;
 
   document.getElementById('timerSub').textContent = '진행 중';
   updateDisplay();
