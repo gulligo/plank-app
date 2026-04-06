@@ -895,20 +895,35 @@ function finishWorkout(){
   clearInterval(timerInterval);
   timerInterval = null;
 
+  const bestBefore = getBestRecord();   // 🔥 기존 최고기록 저장
   const saved = saveTodayRecord(elapsed);
+  const bestAfter = getBestRecord();    // 🔥 저장 후 최고기록
+
   speak('종료');
   vibrate([120,70,180]);
 
-  if(saved){
+  // ✅ 최고기록 갱신 여부 체크
+  if(saved && bestAfter > bestBefore){
+
+    showNotice('🎉 최고기록 갱신!');
+    speak('최고기록을 갱신하셨습니다. 축하합니다');
+
+    launchConfetti();
+
+  }else if(saved){
+
     showNotice('기록 저장');
+
     if(elapsed >= data.goalSec){
       launchConfetti();
     }
+
   }else{
     showNotice('오늘 더 긴 기록이 저장되어 있습니다');
   }
 
   document.getElementById('timerSub').textContent = '원형을 누르면 시작합니다';
+
   renderStats();
   renderCalendar();
   renderChart();
