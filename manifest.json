@@ -1,18 +1,19 @@
+
 {
   "name": "용용이 플랭크",
   "short_name": "플랭크",
-  "start_url": "/plank-app/plank.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#5b8fff",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
