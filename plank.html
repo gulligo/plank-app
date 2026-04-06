@@ -792,27 +792,32 @@ function getMonthAverage(){
   const now = new Date();
   const y = now.getFullYear();
   const m = now.getMonth();
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-  let total = 0;
-  for(let d = 1; d <= daysInMonth; d++){
-    const key = ymd(new Date(y, m, d));
-    total += data.records[key] || 0;
-  }
-  return Math.round(total / daysInMonth);
+
+  const prefix = `${y}-${String(m+1).padStart(2,'0')}-`;
+
+  const vals = Object.keys(data.records)
+    .filter(k => k.startsWith(prefix))
+    .map(k => data.records[k])
+    .filter(v => v > 0);
+
+  if(vals.length === 0) return 0;
+
+  const sum = vals.reduce((a,b) => a + b, 0);
+  return Math.round(sum / vals.length);
 }
 function getYearAverage(){
   const now = new Date();
   const y = now.getFullYear();
-  const daysInYear = ((y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0)) ? 366 : 365;
-  let total = 0;
-  for(let m = 0; m < 12; m++){
-    const last = new Date(y, m + 1, 0).getDate();
-    for(let d = 1; d <= last; d++){
-      const key = ymd(new Date(y, m, d));
-      total += data.records[key] || 0;
-    }
-  }
-  return Math.round(total / daysInYear);
+
+  const vals = Object.keys(data.records)
+    .filter(k => k.startsWith(String(y)))
+    .map(k => data.records[k])
+    .filter(v => v > 0);
+
+  if(vals.length === 0) return 0;
+
+  const sum = vals.reduce((a,b) => a + b, 0);
+  return Math.round(sum / vals.length);
 }
 function getScaleMax(){
   const best = Math.max(getBestRecord(), data.goalSec, 65);
