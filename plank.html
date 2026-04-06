@@ -1,143 +1,1025 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>플랭크 도전 - 용용님</title>
-    <style>
-        /* CSS: 스타일 디자인 */
-        body { background: #121212; color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        .progress-container { width: 100%; height: 30px; background: #333; position: relative; }
-        #progress-bar { width: 0%; height: 100%; background: #00ff88; transition: 0.3s; }
-        #percent-text { position: absolute; right: 10px; top: 5px; font-weight: bold; }
-        .circle-timer { position: relative; width: 250px; height: 250px; margin: 40px auto; }
-        svg { transform: rotate(-90deg); }
-        .base-circle { fill: none; stroke: #333; stroke-width: 15; }
-        #moving-circle {
-            fill: none; stroke: #00ff88; stroke-width: 15;
-            stroke-dasharray: 691; stroke-dashoffset: 0;
-            stroke-linecap: round; transition: 1s linear;
-        }
-        #display {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem; font-weight: bold;
-        }
-        .input-group { margin: 20px; font-size: 1.2rem; }
-        input { width: 80px; padding: 10px; font-size: 1.2rem; border-radius: 5px; text-align: center; background: #222; color: white; border: 1px solid #444; }
-        button { padding: 15px 30px; font-size: 1.2rem; margin: 10px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
-        #startBtn { background: #00ff88; color: black; }
-        #resetBtn { background: #555; color: white; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>용용이 플랭크</title>
+  <meta name="theme-color" content="#ff6fae" />
+  <style>
+    :root{
+      --bg1:#fff7fb;
+      --bg2:#ffeaf3;
+      --card:#ffffff;
+      --main:#ff6fae;
+      --main2:#ff93c1;
+      --deep:#e64d91;
+      --text:#333;
+      --muted:#777;
+      --line:#f3c7d9;
+      --good:#ff4d88;
+      --soft:#ffd6e6;
+      --shadow:0 8px 24px rgba(230,77,145,.14);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
+    }
+    .app{
+      max-width:720px;
+      margin:0 auto;
+      min-height:100vh;
+      padding:16px 14px 40px;
+    }
+    .title{
+      text-align:center;
+      font-size:30px;
+      font-weight:900;
+      color:var(--deep);
+      margin:8px 0 12px;
+      letter-spacing:-1px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin-bottom:14px;
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+    .statBox{
+      background:linear-gradient(180deg,#fff,#fff7fb);
+      border:1px solid #ffd2e4;
+      border-radius:20px;
+      padding:14px 10px;
+      text-align:center;
+    }
+    .statLabel{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .statValue{
+      font-size:22px;
+      font-weight:900;
+      color:var(--deep);
+      line-height:1.1;
+      word-break:keep-all;
+    }
+
+    .timerWrap{
+      text-align:center;
+      padding:10px 6px 4px;
+    }
+    .modeText{
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:10px;
+      font-weight:700;
+    }
+    .timer{
+      font-size:68px;
+      font-weight:900;
+      line-height:1;
+      letter-spacing:-2px;
+      color:var(--deep);
+      margin:6px 0 8px;
+    }
+    .subTimer{
+      font-size:18px;
+      color:var(--muted);
+      font-weight:700;
+      min-height:24px;
+    }
+    .barOuter{
+      width:100%;
+      height:16px;
+      background:#ffe6f0;
+      border-radius:999px;
+      overflow:hidden;
+      margin:16px 0 8px;
+      border:1px solid #ffd4e4;
+    }
+    .barInner{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,var(--main),var(--deep));
+      transition:width .25s linear;
+    }
+
+    .btnRow{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+    button{
+      border:none;
+      border-radius:18px;
+      padding:16px 12px;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .btnMain{
+      background:linear-gradient(180deg,var(--main),var(--deep));
+      color:#fff;
+      box-shadow:0 8px 18px rgba(230,77,145,.24);
+    }
+    .btnSub{
+      background:#fff0f6;
+      color:var(--deep);
+      border:1px solid #ffc8dc;
+    }
+    .btnGray{
+      background:#f5f5f7;
+      color:#555;
+      border:1px solid #e2e2e8;
+    }
+
+    .sectionTitle{
+      font-size:20px;
+      font-weight:900;
+      color:var(--deep);
+      margin:0 0 12px;
+      letter-spacing:-.5px;
+    }
+
+    .topLine{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .monthNav{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .navBtn{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      padding:0;
+      font-size:18px;
+      font-weight:900;
+    }
+    .monthLabel{
+      font-size:18px;
+      font-weight:900;
+      color:#444;
+      min-width:130px;
+      text-align:center;
+    }
+
+    .calendar{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:8px;
+    }
+    .dow, .day{
+      background:#fff;
+      border-radius:16px;
+      text-align:center;
+    }
+    .dow{
+      padding:10px 4px;
+      font-size:13px;
+      font-weight:800;
+      color:var(--muted);
+      background:#fff5f9;
+      border:1px solid #ffe0eb;
+    }
+    .day{
+      min-height:80px;
+      border:1px solid #f6d6e3;
+      padding:8px 4px;
+      position:relative;
+      overflow:hidden;
+    }
+    .day.empty{
+      background:rgba(255,255,255,.45);
+      border:1px dashed #f2d9e4;
+    }
+    .dayNum{
+      font-size:13px;
+      font-weight:800;
+      color:#555;
+      position:relative;
+      z-index:2;
+    }
+    .circle{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      margin:6px auto 4px;
+      background:rgba(255,111,174,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+      font-weight:900;
+      color:var(--deep);
+      position:relative;
+      z-index:2;
+    }
+    .dayTime{
+      font-size:11px;
+      font-weight:800;
+      color:var(--deep);
+      line-height:1.15;
+      word-break:keep-all;
+      position:relative;
+      z-index:2;
+    }
+
+    .summaryGrid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    .summaryBox{
+      background:#fff7fb;
+      border:1px solid #ffd8e8;
+      border-radius:18px;
+      padding:14px 12px;
+    }
+    .summaryBox .label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+    .summaryBox .value{
+      font-size:22px;
+      color:var(--deep);
+      font-weight:900;
+      line-height:1.15;
+    }
+
+    .graphTabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .tabBtn{
+      flex:1;
+      padding:12px 10px;
+      font-size:15px;
+      border-radius:16px;
+      font-weight:900;
+    }
+    .tabBtn.active{
+      background:linear-gradient(180deg,var(--main),var(--deep));
+      color:#fff;
+    }
+    .tabBtn:not(.active){
+      background:#fff1f7;
+      color:var(--deep);
+      border:1px solid #ffd0e1;
+    }
+
+    .bars{
+      display:flex;
+      align-items:flex-end;
+      gap:8px;
+      min-height:240px;
+      padding:8px 2px 0;
+      overflow-x:auto;
+    }
+    .barItem{
+      min-width:36px;
+      flex:0 0 auto;
+      text-align:center;
+    }
+    .barVal{
+      font-size:11px;
+      color:var(--deep);
+      font-weight:900;
+      min-height:28px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      margin-bottom:4px;
+      line-height:1.1;
+    }
+    .barCol{
+      width:100%;
+      border-radius:14px 14px 8px 8px;
+      background:linear-gradient(180deg,var(--main2),var(--deep));
+      min-height:4px;
+      box-shadow:0 4px 10px rgba(230,77,145,.18);
+    }
+    .barLbl{
+      margin-top:6px;
+      font-size:11px;
+      color:#666;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .smallNote{
+      margin-top:10px;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+      line-height:1.5;
+    }
+
+    .footerBtns{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .danger{
+      background:#fff3f3;
+      color:#d9485f;
+      border:1px solid #ffc9d0;
+    }
+
+    @media (max-width:520px){
+      .timer{font-size:56px;}
+      .statValue{font-size:19px;}
+      .day{min-height:72px;}
+      .circle{width:38px;height:38px;font-size:10px;}
+      .dayTime{font-size:10px;}
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <div class="title">용용이 플랭크</div>
 
-    <div class="progress-container">
-        <div id="progress-bar"></div>
-        <span id="percent-text">0%</span>
+    <div class="card">
+      <div class="stats">
+        <div class="statBox">
+          <div class="statLabel">오늘 기록</div>
+          <div id="todayRecord" class="statValue">0초</div>
+        </div>
+        <div class="statBox">
+          <div class="statLabel">최고 기록</div>
+          <div id="bestRecord" class="statValue">0초</div>
+        </div>
+        <div class="statBox">
+          <div class="statLabel">연속 성공</div>
+          <div id="streakRecord" class="statValue">0일</div>
+        </div>
+      </div>
     </div>
 
-    <div class="main-container">
-        <h1 style="margin-top: 20px;">플랭크 도전</h1>
-        
-        <div class="circle-timer">
-            <svg width="250" height="250">
-                <circle cx="125" cy="125" r="110" class="base-circle"></circle>
-                <circle cx="125" cy="125" r="110" id="moving-circle"></circle>
-            </svg>
-            <div id="display">대기</div>
+    <div class="card">
+      <div class="timerWrap">
+        <div id="modeText" class="modeText">시작 버튼을 누르면 준비 3초 후 측정합니다</div>
+        <div id="timer" class="timer">00:00</div>
+        <div id="subTimer" class="subTimer">0초</div>
+        <div class="barOuter">
+          <div id="progressBar" class="barInner"></div>
         </div>
-
-        <div class="input-group">
-            <input type="number" id="targetInput" value="80"> 초 설정
+        <div class="btnRow">
+          <button id="startBtn" class="btnMain">시작</button>
+          <button id="stopBtn" class="btnSub">종료</button>
+          <button id="resetViewBtn" class="btnGray">화면초기화</button>
         </div>
-
-        <div class="controls">
-            <button id="startBtn">운동 시작</button>
-            <button id="resetBtn">초기화</button>
-        </div>
+      </div>
     </div>
 
-    <script>
-        /* JavaScript: 핵심 로직 */
-        let timer;
-        let totalTime, timeLeft;
-        const display = document.getElementById('display');
-        const progressBar = document.getElementById('progress-bar');
-        const percentText = document.getElementById('percent-text');
-        const movingCircle = document.getElementById('moving-circle');
-        const circleLength = 691; 
+    <div class="card">
+      <div class="topLine">
+        <div class="sectionTitle" style="margin:0;">달력 기록</div>
+        <div class="monthNav">
+          <button id="prevMonthBtn" class="btnSub navBtn">◀</button>
+          <div id="monthLabel" class="monthLabel">2026년 4월</div>
+          <button id="nextMonthBtn" class="btnSub navBtn">▶</button>
+        </div>
+      </div>
 
-        function speak(text) {
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'ko-KR';
-            window.speechSynthesis.speak(msg);
+      <div class="calendar" id="calendar"></div>
+
+      <div class="summaryGrid">
+        <div class="summaryBox">
+          <div class="label">이번 달 평균</div>
+          <div id="monthAvg" class="value">0초</div>
+        </div>
+        <div class="summaryBox">
+          <div class="label">이번 달 합계</div>
+          <div id="monthTotal" class="value">0초</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">그래프</div>
+
+      <div class="graphTabs">
+        <button id="monthGraphBtn" class="tabBtn active">월 그래프</button>
+        <button id="yearGraphBtn" class="tabBtn">연도 그래프</button>
+      </div>
+
+      <div id="bars" class="bars"></div>
+
+      <div class="summaryGrid">
+        <div class="summaryBox">
+          <div class="label">연 평균</div>
+          <div id="yearAvg" class="value">0초</div>
+        </div>
+        <div class="summaryBox">
+          <div class="label">총 누적 시간</div>
+          <div id="grandTotal" class="value">0초</div>
+        </div>
+      </div>
+
+      <div class="smallNote">
+        같은 날짜에 다시 기록하면 더 긴 시간만 저장됩니다.
+      </div>
+
+      <div class="footerBtns">
+        <button id="deleteTodayBtn" class="danger">오늘 기록 삭제</button>
+        <button id="exportBtn" class="btnSub">기록 내보내기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "yongyong_plank_v1";
+
+    const els = {
+      todayRecord: document.getElementById("todayRecord"),
+      bestRecord: document.getElementById("bestRecord"),
+      streakRecord: document.getElementById("streakRecord"),
+      modeText: document.getElementById("modeText"),
+      timer: document.getElementById("timer"),
+      subTimer: document.getElementById("subTimer"),
+      progressBar: document.getElementById("progressBar"),
+      startBtn: document.getElementById("startBtn"),
+      stopBtn: document.getElementById("stopBtn"),
+      resetViewBtn: document.getElementById("resetViewBtn"),
+      prevMonthBtn: document.getElementById("prevMonthBtn"),
+      nextMonthBtn: document.getElementById("nextMonthBtn"),
+      monthLabel: document.getElementById("monthLabel"),
+      calendar: document.getElementById("calendar"),
+      monthAvg: document.getElementById("monthAvg"),
+      monthTotal: document.getElementById("monthTotal"),
+      bars: document.getElementById("bars"),
+      monthGraphBtn: document.getElementById("monthGraphBtn"),
+      yearGraphBtn: document.getElementById("yearGraphBtn"),
+      yearAvg: document.getElementById("yearAvg"),
+      grandTotal: document.getElementById("grandTotal"),
+      deleteTodayBtn: document.getElementById("deleteTodayBtn"),
+      exportBtn: document.getElementById("exportBtn")
+    };
+
+    let state = loadData();
+    let timerInterval = null;
+    let countdownInterval = null;
+    let startTime = null;
+    let running = false;
+    let countingDown = false;
+    let currentElapsedSec = 0;
+    let graphMode = "month";
+    let wakeLock = null;
+
+    let currentViewYear = new Date().getFullYear();
+    let currentViewMonth = new Date().getMonth();
+
+    function loadData(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw){
+          return {
+            records: {}
+          };
+        }
+        const data = JSON.parse(raw);
+        if(!data.records) data.records = {};
+        return data;
+      }catch(e){
+        return { records:{} };
+      }
+    }
+
+    function saveData(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function todayKey(){
+      return localDateKey(new Date());
+    }
+
+    function localDateKey(date){
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,"0");
+      const d = String(date.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDateKey(key){
+      const [y,m,d] = key.split("-").map(Number);
+      return new Date(y, m-1, d);
+    }
+
+    function formatMMSS(sec){
+      sec = Math.max(0, Math.floor(sec));
+      const m = String(Math.floor(sec/60)).padStart(2,"0");
+      const s = String(sec%60).padStart(2,"0");
+      return `${m}:${s}`;
+    }
+
+    function formatKoreanTime(sec){
+      sec = Math.max(0, Math.floor(sec));
+      const h = Math.floor(sec/3600);
+      const m = Math.floor((sec%3600)/60);
+      const s = sec%60;
+
+      if(h > 0){
+        if(s === 0) return `${h}시간 ${m}분`;
+        return `${h}시간 ${m}분 ${s}초`;
+      }
+      if(m > 0){
+        if(s === 0) return `${m}분`;
+        return `${m}분 ${s}초`;
+      }
+      return `${s}초`;
+    }
+
+    function formatShort(sec){
+      sec = Math.max(0, Math.floor(sec));
+      const m = Math.floor(sec/60);
+      const s = sec%60;
+      if(m > 0) return `${m}분${s}초`;
+      return `${s}초`;
+    }
+
+    function speak(text){
+      try{
+        if(!("speechSynthesis" in window)) return;
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "ko-KR";
+        utter.rate = 0.95;
+        utter.pitch = 1.0;
+        window.speechSynthesis.speak(utter);
+      }catch(e){}
+    }
+
+    function vibrate(ms=200){
+      try{
+        if(navigator.vibrate) navigator.vibrate(ms);
+      }catch(e){}
+    }
+
+    async function requestWakeLock(){
+      try{
+        if("wakeLock" in navigator){
+          wakeLock = await navigator.wakeLock.request("screen");
+        }
+      }catch(e){}
+    }
+
+    async function releaseWakeLock(){
+      try{
+        if(wakeLock){
+          await wakeLock.release();
+          wakeLock = null;
+        }
+      }catch(e){}
+    }
+
+    document.addEventListener("visibilitychange", async () => {
+      if(document.visibilityState === "visible" && running){
+        await requestWakeLock();
+      }
+    });
+
+    function getTodayRecord(){
+      return state.records[todayKey()] || 0;
+    }
+
+    function getBestRecord(){
+      let best = 0;
+      for(const key in state.records){
+        best = Math.max(best, state.records[key] || 0);
+      }
+      return best;
+    }
+
+    function getGrandTotal(){
+      let total = 0;
+      for(const key in state.records){
+        total += state.records[key] || 0;
+      }
+      return total;
+    }
+
+    function getStreak(){
+      const keys = Object.keys(state.records)
+        .filter(k => (state.records[k] || 0) > 0)
+        .sort();
+
+      if(keys.length === 0) return 0;
+
+      let streak = 0;
+      let cursor = new Date();
+      cursor.setHours(0,0,0,0);
+
+      while(true){
+        const key = localDateKey(cursor);
+        if((state.records[key] || 0) > 0){
+          streak++;
+          cursor.setDate(cursor.getDate() - 1);
+        }else{
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function monthDays(year, month){
+      return new Date(year, month + 1, 0).getDate();
+    }
+
+    function getMonthStats(year, month){
+      const days = monthDays(year, month);
+      let total = 0;
+      for(let d=1; d<=days; d++){
+        const key = localDateKey(new Date(year, month, d));
+        total += state.records[key] || 0;
+      }
+      const avg = days ? total / days : 0;
+      return { days, total, avg };
+    }
+
+    function getYearStats(year){
+      let total = 0;
+      for(let m=0; m<12; m++){
+        total += getMonthStats(year, m).total;
+      }
+      const daysInYear = isLeapYear(year) ? 366 : 365;
+      const avg = total / daysInYear;
+      return { total, avg };
+    }
+
+    function isLeapYear(year){
+      return (year%4===0 && year%100!==0) || (year%400===0);
+    }
+
+    function saveTodayRecord(sec){
+      const key = todayKey();
+      const old = state.records[key] || 0;
+      if(sec > old){
+        state.records[key] = Math.floor(sec);
+        saveData();
+        return true;
+      }
+      return false;
+    }
+
+    function deleteTodayRecord(){
+      const key = todayKey();
+      delete state.records[key];
+      saveData();
+      renderAll();
+    }
+
+    function updateTopStats(){
+      els.todayRecord.textContent = formatKoreanTime(getTodayRecord());
+      els.bestRecord.textContent = formatKoreanTime(getBestRecord());
+      els.streakRecord.textContent = `${getStreak()}일`;
+      els.grandTotal.textContent = formatKoreanTime(getGrandTotal());
+
+      const yearStat = getYearStats(new Date().getFullYear());
+      els.yearAvg.textContent = formatKoreanTime(Math.floor(yearStat.avg));
+    }
+
+    function renderCalendar(year, month){
+      els.monthLabel.textContent = `${year}년 ${month+1}월`;
+      els.calendar.innerHTML = "";
+
+      const dows = ["일","월","화","수","목","금","토"];
+      dows.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "dow";
+        div.textContent = d;
+        els.calendar.appendChild(div);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = monthDays(year, month);
+
+      for(let i=0; i<firstDay; i++){
+        const div = document.createElement("div");
+        div.className = "day empty";
+        els.calendar.appendChild(div);
+      }
+
+      let maxSec = 0;
+      for(let d=1; d<=lastDate; d++){
+        const key = localDateKey(new Date(year, month, d));
+        maxSec = Math.max(maxSec, state.records[key] || 0);
+      }
+
+      for(let d=1; d<=lastDate; d++){
+        const key = localDateKey(new Date(year, month, d));
+        const sec = state.records[key] || 0;
+
+        const div = document.createElement("div");
+        div.className = "day";
+
+        const dayNum = document.createElement("div");
+        dayNum.className = "dayNum";
+        dayNum.textContent = d;
+
+        const circle = document.createElement("div");
+        circle.className = "circle";
+
+        let size = 22;
+        if(maxSec > 0 && sec > 0){
+          size = 20 + Math.round((sec / maxSec) * 28);
+        }
+        circle.style.width = size + "px";
+        circle.style.height = size + "px";
+        circle.textContent = sec > 0 ? "●" : "";
+
+        const time = document.createElement("div");
+        time.className = "dayTime";
+        time.innerHTML = sec > 0 ? formatShort(sec) : "";
+
+        if(sec === 0){
+          circle.style.background = "rgba(255,111,174,.08)";
         }
 
-        document.getElementById('startBtn').addEventListener('click', () => {
-            if (timer) return;
-            
-            totalTime = parseInt(document.getElementById('targetInput').value);
-            timeLeft = totalTime;
-            
-            let ready = 3;
-            // 시작 전 3, 2, 1 음성 및 화면 표시
-            const readyInt = setInterval(() => {
-                if (ready > 0) {
-                    display.textContent = ready;
-                    speak(ready);
-                    ready--;
-                } else {
-                    clearInterval(readyInt);
-                    display.textContent = "시작!";
-                    speak("시작");
-                    setTimeout(startPlank, 500);
-                }
-            }, 1000);
-        });
+        div.appendChild(dayNum);
+        div.appendChild(circle);
+        div.appendChild(time);
+        els.calendar.appendChild(div);
+      }
 
-        function startPlank() {
-            timer = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    display.textContent = timeLeft + "초";
-                    
-                    let progress = ((totalTime - timeLeft) / totalTime) * 100;
-                    progressBar.style.width = progress + "%";
-                    percentText.textContent = Math.floor(progress) + "%";
+      const mStat = getMonthStats(year, month);
+      els.monthAvg.textContent = formatKoreanTime(Math.floor(mStat.avg));
+      els.monthTotal.textContent = formatKoreanTime(mStat.total);
+    }
 
-                    let offset = circleLength - (progress / 100) * circleLength;
-                    movingCircle.style.strokeDashoffset = offset;
+    function renderGraph(){
+      els.bars.innerHTML = "";
 
-                    // 색상 변경
-                    if (progress > 80) {
-                        progressBar.style.background = "#ff4444";
-                        movingCircle.style.stroke = "#ff4444";
-                    } else if (progress > 50) {
-                        progressBar.style.background = "#ffbb00";
-                        movingCircle.style.stroke = "#ffbb00";
-                    }
+      if(graphMode === "month"){
+        els.monthGraphBtn.classList.add("active");
+        els.yearGraphBtn.classList.remove("active");
 
-                    // 음성 안내
-                    if (timeLeft === 80 || timeLeft === 60 || timeLeft === 30) {
-                        speak(timeLeft + "초 남았습니다");
-                    }
-                    if (timeLeft <= 5 && timeLeft > 0) {
-                        speak(timeLeft);
-                    }
-                } else {
-                    clearInterval(timer);
-                    timer = null;
-                    display.textContent = "성공!";
-                    speak("목표 달성! 고생하셨습니다");
-                    alert("목표 달성!");
-                }
-            }, 1000);
+        const year = currentViewYear;
+        const month = currentViewMonth;
+        const days = monthDays(year, month);
+
+        const data = [];
+        let max = 0;
+        for(let d=1; d<=days; d++){
+          const key = localDateKey(new Date(year, month, d));
+          const value = state.records[key] || 0;
+          data.push({ label: d, value });
+          max = Math.max(max, value);
         }
 
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            location.reload(); 
+        data.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "barItem";
+
+          const val = document.createElement("div");
+          val.className = "barVal";
+          val.textContent = item.value > 0 ? formatShort(item.value) : "";
+
+          const col = document.createElement("div");
+          col.className = "barCol";
+          const h = max > 0 ? Math.max(4, Math.round((item.value/max) * 180)) : 4;
+          col.style.height = h + "px";
+
+          const lbl = document.createElement("div");
+          lbl.className = "barLbl";
+          lbl.textContent = item.label;
+
+          div.appendChild(val);
+          div.appendChild(col);
+          div.appendChild(lbl);
+          els.bars.appendChild(div);
         });
-    </script>
+      }else{
+        els.monthGraphBtn.classList.remove("active");
+        els.yearGraphBtn.classList.add("active");
+
+        const year = new Date().getFullYear();
+        const labels = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+        const data = [];
+        let max = 0;
+
+        for(let m=0; m<12; m++){
+          const total = getMonthStats(year, m).total;
+          data.push({ label: labels[m], value: total });
+          max = Math.max(max, total);
+        }
+
+        data.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "barItem";
+
+          const val = document.createElement("div");
+          val.className = "barVal";
+          val.textContent = item.value > 0 ? formatShort(item.value) : "";
+
+          const col = document.createElement("div");
+          col.className = "barCol";
+          const h = max > 0 ? Math.max(4, Math.round((item.value/max) * 180)) : 4;
+          col.style.height = h + "px";
+
+          const lbl = document.createElement("div");
+          lbl.className = "barLbl";
+          lbl.textContent = item.label;
+
+          div.appendChild(val);
+          div.appendChild(col);
+          div.appendChild(lbl);
+          els.bars.appendChild(div);
+        });
+      }
+    }
+
+    function renderTimer(sec){
+      els.timer.textContent = formatMMSS(sec);
+      els.subTimer.textContent = formatKoreanTime(sec);
+      const pct = Math.min(100, sec / 300 * 100); // 5분 기준 시각용
+      els.progressBar.style.width = pct + "%";
+    }
+
+    function resetViewOnly(){
+      if(running || countingDown) return;
+      currentElapsedSec = 0;
+      renderTimer(0);
+      els.modeText.textContent = "시작 버튼을 누르면 준비 3초 후 측정합니다";
+    }
+
+    async function startCountdown(){
+      if(running || countingDown) return;
+
+      countingDown = true;
+      currentElapsedSec = 0;
+      let count = 3;
+      els.modeText.textContent = "준비";
+      els.timer.textContent = count;
+      els.subTimer.textContent = "곧 시작합니다";
+      els.progressBar.style.width = "0%";
+      speak("준비");
+      vibrate(120);
+
+      countdownInterval = setInterval(() => {
+        count--;
+        if(count > 0){
+          els.timer.textContent = count;
+          els.subTimer.textContent = "곧 시작합니다";
+          vibrate(80);
+        }else{
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          countingDown = false;
+          startRun();
+        }
+      }, 1000);
+    }
+
+    async function startRun(){
+      running = true;
+      startTime = Date.now();
+      currentElapsedSec = 0;
+      els.modeText.textContent = "플랭크 진행 중";
+      speak("시작");
+      vibrate(200);
+      await requestWakeLock();
+
+      timerInterval = setInterval(() => {
+        currentElapsedSec = Math.floor((Date.now() - startTime) / 1000);
+        renderTimer(currentElapsedSec);
+
+        if(currentElapsedSec > 0 && currentElapsedSec % 30 === 0){
+          vibrate(60);
+        }
+      }, 250);
+    }
+
+    async function stopRun(){
+      if(countingDown){
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+        countingDown = false;
+        els.modeText.textContent = "준비가 취소되었습니다";
+        renderTimer(0);
+        return;
+      }
+
+      if(!running){
+        return;
+      }
+
+      running = false;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      await releaseWakeLock();
+
+      currentElapsedSec = Math.floor((Date.now() - startTime) / 1000);
+      renderTimer(currentElapsedSec);
+
+      const saved = saveTodayRecord(currentElapsedSec);
+
+      if(saved){
+        els.modeText.textContent = `기록 저장 완료 · ${formatKoreanTime(currentElapsedSec)}`;
+        speak("종료");
+        vibrate([150,80,150]);
+      }else{
+        els.modeText.textContent = `오늘 더 긴 기록이 이미 저장되어 있습니다`;
+        speak("종료");
+        vibrate(120);
+      }
+
+      renderAll();
+    }
+
+    function exportData(){
+      const text = JSON.stringify(state, null, 2);
+      const blob = new Blob([text], { type:"application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "yongyong_plank_data.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderAll(){
+      updateTopStats();
+      renderCalendar(currentViewYear, currentViewMonth);
+      renderGraph();
+
+      if(!running && !countingDown){
+        const t = getTodayRecord();
+        if(t > 0){
+          els.modeText.textContent = "오늘 기록이 저장되어 있습니다";
+          renderTimer(t);
+        }else{
+          renderTimer(0);
+          els.modeText.textContent = "시작 버튼을 누르면 준비 3초 후 측정합니다";
+        }
+      }
+    }
+
+    els.startBtn.addEventListener("click", startCountdown);
+    els.stopBtn.addEventListener("click", stopRun);
+    els.resetViewBtn.addEventListener("click", resetViewOnly);
+
+    els.prevMonthBtn.addEventListener("click", () => {
+      currentViewMonth--;
+      if(currentViewMonth < 0){
+        currentViewMonth = 11;
+        currentViewYear--;
+      }
+      renderCalendar(currentViewYear, currentViewMonth);
+      if(graphMode === "month") renderGraph();
+    });
+
+    els.nextMonthBtn.addEventListener("click", () => {
+      currentViewMonth++;
+      if(currentViewMonth > 11){
+        currentViewMonth = 0;
+        currentViewYear++;
+      }
+      renderCalendar(currentViewYear, currentViewMonth);
+      if(graphMode === "month") renderGraph();
+    });
+
+    els.monthGraphBtn.addEventListener("click", () => {
+      graphMode = "month";
+      renderGraph();
+    });
+
+    els.yearGraphBtn.addEventListener("click", () => {
+      graphMode = "year";
+      renderGraph();
+    });
+
+    els.deleteTodayBtn.addEventListener("click", () => {
+      const ok = confirm("오늘 기록을 삭제할까요?");
+      if(!ok) return;
+      deleteTodayRecord();
+    });
+
+    els.exportBtn.addEventListener("click", exportData);
+
+    renderAll();
+  </script>
 </body>
 </html>
