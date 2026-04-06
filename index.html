@@ -721,17 +721,18 @@ function showNotice(text){
 function speak(text){
   if(!data.settings.sound) return;
   try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(String(text));
     u.lang = 'ko-KR';
-    u.rate = 0.85;
+    u.rate = 0.9;
     u.pitch = 1.0;
+
     const doSpeak = () => {
       const voices = speechSynthesis.getVoices();
-      const ko = voices.find(v => (v.lang||'').toLowerCase().includes('ko'));
+      const ko = voices.find(v => (v.lang || '').toLowerCase().includes('ko'));
       if(ko) u.voice = ko;
       speechSynthesis.speak(u);
     };
+
     if(speechSynthesis.getVoices().length === 0){
       speechSynthesis.onvoiceschanged = doSpeak;
     }else{
@@ -949,10 +950,16 @@ function checkAnnouncements(){
     speak('60초 남았습니다');
     vibrate([60,40,60]);
   }
+
   if(!said30 && remaining === 30){
     said30 = true;
     speak('30초 남았습니다');
     vibrate([60,40,60,40,60]);
+  }
+
+  if(remaining >= 1 && remaining <= 5){
+    speak(String(remaining));
+    vibrate(40);
   }
 
   if(!goalReached && elapsed >= data.goalSec){
