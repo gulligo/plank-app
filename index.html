@@ -1063,13 +1063,15 @@ function renderStats(){
   document.getElementById('currentStreak').textContent = streak.current + '일';
   document.getElementById('bestStreak').textContent = streak.best + '일';
 }
-function bubbleSize(sec, maxSec){
+function bubbleSize(sec){
   if(sec <= 0) return 0;
-  const minBase = 10;
-  const maxBase = 38;
-  if(sec <= 60) return minBase;
-  const ratio = (sec - 60) / Math.max(1, maxSec - 60);
-  return Math.round(minBase + (maxBase - minBase) * Math.min(1, ratio));
+
+  if(sec <= 60) return 4;    // 60초 = 점처럼 시작
+  if(sec <= 90) return 6;    // 61~90초
+  if(sec <= 120) return 8;   // 91~120초
+  if(sec <= 180) return 10;  // 121~180초
+  if(sec <= 240) return 12;  // 181~240초
+  return 14;                 // 4분 초과
 }
 function renderCalendar(){
   const grid = document.getElementById('calendarGrid');
@@ -1116,7 +1118,7 @@ function renderCalendar(){
     bubble.className = 'day-bubble';
 
     if(sec > 0){
-      const size = bubbleSize(sec, monthMax || 60);
+      const size = bubbleSize(sec);
       bubble.style.width = size + 'px';
       bubble.style.height = size + 'px';
     }else{
