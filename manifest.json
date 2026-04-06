@@ -1,6 +1,7 @@
 
 {
-  "name": "용용이 플랭크",
+  "name": "용용이 플랭크", 
+  
   "short_name": "용용이플랭크",
   "start_url": "./",
   "display": "standalone",
