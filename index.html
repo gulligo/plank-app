@@ -1121,15 +1121,16 @@ function renderCalendar(){
 bubble.style.backgroundImage = 'none';
 
     if(sec > 0){
-      const size = bubbleSize(sec);
-      bubble.style.width = size + 'px';
-      bubble.style.height = size + 'px';
-    
-    }else{
-      bubble.style.width = '0px';
-      bubble.style.height = '0px';
-      bubble.style.background = 'transparent';
-    }
+  const size = bubbleSize(sec);
+  bubble.style.width = size + 'px';
+  bubble.style.height = size + 'px';
+  bubble.style.backgroundColor = 'rgba(255, 138, 42, 0.4)';
+  bubble.style.display = 'block';
+}else{
+  bubble.style.width = '0px';
+  bubble.style.height = '0px';
+  bubble.style.display = 'none';
+}
 
     if(key === todayKey){
       day.style.outline = '2px solid #84a5ff';
