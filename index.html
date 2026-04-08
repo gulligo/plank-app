@@ -1203,8 +1203,7 @@ function renderChart(){
   const max = arr.length ? Math.max(...arr.map(v => v.value)) : 0;
   const chartMax = Math.max(60, Math.ceil(max * 1.15 / 20) * 20);
 
-  document.getElementById('graphMax').textContent = max > 0 ? `${max}초` : '-';
-  document.getElementById('graphSum').textContent = sum > 0 ? `${sum}초` : '-';
+  document.getElementById('graphAvg').textContent = avg > 0 ? `${avg}초` : '-';
 
   document.getElementById('yTop').textContent = chartMax;
   document.getElementById('yMid2').textContent = Math.round(chartMax * 0.66);
