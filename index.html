@@ -1202,6 +1202,8 @@ function renderChart(){
   const sum = arr.reduce((a,b) => a+b.value, 0);
   const max = arr.length ? Math.max(...arr.map(v => v.value)) : 0;
   const chartMax = Math.max(60, Math.ceil(max * 1.15 / 20) * 20);
+  const nonZero = arr.filter(x => x.value > 0).length;
+  const avg = nonZero > 0 ? Math.round(sum / nonZero) : 0;
 
   document.getElementById('graphAvg').textContent = avg > 0 ? `${avg}초` : '-';
 
