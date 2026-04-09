@@ -1163,20 +1163,20 @@ function getMonthlySeries(){
   const arr = [];
   for(let m=1; m<=12; m++){
     const prefix = `${y}-${String(m).padStart(2,'0')}-`;
-    const sum = Object.keys(data.records)
-      .filter(k => k.startsWith(prefix))
-      .reduce((a,k) => a + data.records[k], 0);
-    arr.push({ label: `${m}월`, value: sum });
+    const keys = Object.keys(data.records).filter(k => k.startsWith(prefix));
+    const sum = keys.reduce((a,k) => a + data.records[k], 0);
+    const avg = keys.length > 0 ? Math.round(sum / keys.length) : 0;
+    arr.push({ label: `${m}월`, value: avg });
   }
   return arr;
 }
 function getYearlySeries() {
   const arr = [];
   for (let y = 2026; y <= 2030; y++) {
-    const sum = Object.keys(data.records)
-      .filter(k => k.startsWith(String(y)))
-      .reduce((a, k) => a + data.records[k], 0);
-    arr.push({ label: `${y}년`, value: sum });
+    const keys = Object.keys(data.records).filter(k => k.startsWith(String(y)));
+    const sum = keys.reduce((a, k) => a + data.records[k], 0);
+    const avg = keys.length > 0 ? Math.round(sum / keys.length) : 0;
+    arr.push({ label: `${y}년`, value: avg });
   }
   return arr;
 }
