@@ -1203,17 +1203,9 @@ function renderChart(){
   const max = arr.length ? Math.max(...arr.map(v => v.value)) : 0;
   const chartMax = Math.max(60, Math.ceil(max * 1.15 / 20) * 20);
   const nonZero = arr.filter(x => x.value > 0).length;
-  let avg = 0;
-  if(mode === 'day'){
-    avg = nonZero > 0 ? Math.round(sum / nonZero) : 0;
-  } else {
-    avg = nonZero > 0 ? Math.round(sum / nonZero) : 0;
-  }
+  const avg = nonZero > 0 ? Math.round(sum / nonZero) : 0;
 
   document.getElementById('graphAvg').textContent = avg > 0 ? `${avg}초` : '-';
-
-  document.getElementById('graphAvg').textContent = avg > 0 ? `${avg}초` : '-';
-
   document.getElementById('yTop').textContent = chartMax;
   document.getElementById('yMid2').textContent = Math.round(chartMax * 0.66);
   document.getElementById('yMid1').textContent = Math.round(chartMax * 0.33);
@@ -1221,22 +1213,41 @@ function renderChart(){
 
   const wrap = document.getElementById('chartWrap');
   wrap.innerHTML = '';
+  wrap.style.display = 'flex';
+  wrap.style.alignItems = 'flex-end';
+  wrap.style.overflowX = 'auto';
+  wrap.style.gap = '6px';
+  wrap.style.justifyContent = arr.length <= 12 ? 'flex-start' : 'flex-start';
 
-    arr.forEach(item => {
+  // 막대 폭: 개수가 적으면 컴팩트하게, 많으면 최소 폭을 보장해 겹치지 않게 + 스크롤로 넓게
+  let barWidthPx;
+  if(mode === 'month' || mode === 'year'){
+    barWidthPx = null; // 개수가 고정(12, 5)이라 화면 폭에 맞춰 균등 분배
+  }else{
+    const count = arr.length || 1;
+    const containerWidth = wrap.clientWidth || 320;
+    const evenWidth = Math.floor(containerWidth / count) - 6;
+    barWidthPx = Math.min(44, Math.max(30, evenWidth < 30 ? 30 : evenWidth));
+  }
+
+  arr.forEach(item => {
     const h = item.value > 0 ? Math.max(3, Math.round((item.value / chartMax) * 250)) : 2;
     const div = document.createElement('div');
     div.className = 'bar-item';
-    
-    div.style.flex = (mode === 'month' || mode === 'year') ? "1" : "0 0 10px";
+
+    if(barWidthPx === null){
+      div.style.flex = '1';
+    }else{
+      div.style.flex = `0 0 ${barWidthPx}px`;
+    }
 
     div.innerHTML = `
-      <div class="bar-val">${item.value > 0 ? item.value : ''}</div>
+      <div class="bar-val" style="font-size:11px; white-space:nowrap;">${item.value > 0 ? item.value : ''}</div>
       <div class="bar-col" style="height:${h}px; width:80%; margin:0 auto;"></div>
-      <div class="bar-lbl">${item.label}</div>
+      <div class="bar-lbl" style="font-size:11px; white-space:nowrap;">${item.label}</div>
     `;
     wrap.appendChild(div);
   });
-
 }
 function changeMonth(dir){
   calViewDate.setMonth(calViewDate.getMonth() + dir);
