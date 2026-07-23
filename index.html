@@ -1217,7 +1217,7 @@ function renderChart(){
   wrap.style.display = 'flex';
   wrap.style.alignItems = 'flex-end';
   wrap.style.overflowX = 'auto';
-  wrap.style.gap = '1px';
+  wrap.style.gap = '0px';
 
   // 월별/연도별은 개수가 고정이라 균등 분배, 일별만 값 유무로 폭 차등
   const isFixedCount = (mode === 'month' || mode === 'year');
@@ -1231,14 +1231,14 @@ function renderChart(){
       div.style.flex = '1 1 0';
       div.style.minWidth = '0';
     }else if(item.value > 0){
-      div.style.flex = '0 0 18px';   // 기록 있는 날: 폭 넓게
+      div.style.flex = '0 0 9px';   // 기록 있는 날
     }else{
-      div.style.flex = '0 0 8px';    // 기록 없는 날: 폭 좁게
+      div.style.flex = '0 0 3px';   // 기록 없는 날
     }
 
     div.innerHTML = `
       <div class="bar-val" style="font-size:10px; white-space:nowrap;">${item.value > 0 ? item.value : ''}</div>
-      <div class="bar-col" style="height:${h}px; width:70%; margin:0 auto;"></div>
+      <div class="bar-col" style="height:${h}px; width:85%; margin:0 auto;"></div>
       <div class="bar-lbl" style="font-size:9px; white-space:nowrap;">${item.label}</div>
     `;
     wrap.appendChild(div);
