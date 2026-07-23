@@ -1216,43 +1216,29 @@ function renderChart(){
   wrap.style.display = 'flex';
   wrap.style.alignItems = 'flex-end';
   wrap.style.overflowX = 'auto';
+  wrap.style.gap = '3px';
 
-  const count = arr.length || 1;
-
-  let barWidthPx, fontSize, gapPx;
-  if(mode === 'month' || mode === 'year'){
-    // 개수가 고정(12개, 5개)이라 화면 폭에 균등 분배
-    barWidthPx = null;
-    fontSize = 12;
-    gapPx = 6;
-  }else if(count <= 12){
-    barWidthPx = null; // 적을 땐 화면에 꽉 채워서 작게
-    fontSize = 12;
-    gapPx = 6;
-  }else{
-    // 많을 땐 스퀏앱처럼 얇게 + 스크롤
-    barWidthPx = 16;
-    fontSize = 9;
-    gapPx = 3;
-  }
-  wrap.style.gap = gapPx + 'px';
+  // 월별/연도별은 개수가 고정이라 균등 분배, 일별만 값 유무로 폭 차등
+  const isFixedCount = (mode === 'month' || mode === 'year');
 
   arr.forEach(item => {
     const h = item.value > 0 ? Math.max(3, Math.round((item.value / chartMax) * 250)) : 2;
     const div = document.createElement('div');
     div.className = 'bar-item';
 
-    if(barWidthPx === null){
+    if(isFixedCount){
       div.style.flex = '1 1 0';
       div.style.minWidth = '0';
+    }else if(item.value > 0){
+      div.style.flex = '0 0 14px';   // 기록 있는 날: 폭 있게
     }else{
-      div.style.flex = `0 0 ${barWidthPx}px`;
+      div.style.flex = '0 0 5px';    // 기록 없는 날: 얇게
     }
 
     div.innerHTML = `
-      <div class="bar-val" style="font-size:${fontSize}px; white-space:nowrap;">${item.value > 0 ? item.value : ''}</div>
-      <div class="bar-col" style="height:${h}px; width:70%; margin:0 auto;"></div>
-      <div class="bar-lbl" style="font-size:${fontSize}px; white-space:nowrap;">${item.label}</div>
+      <div class="bar-val" style="font-size:9px; white-space:nowrap;">${item.value > 0 ? item.value : ''}</div>
+      <div class="bar-col" style="height:${h}px; width:${item.value > 0 || isFixedCount ? '70%' : '100%'}; margin:0 auto;"></div>
+      <div class="bar-lbl" style="font-size:8px; white-space:nowrap;">${item.value > 0 ? item.label : ''}</div>
     `;
     wrap.appendChild(div);
   });
