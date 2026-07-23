@@ -1230,15 +1230,15 @@ function renderChart(){
       div.style.flex = '1 1 0';
       div.style.minWidth = '0';
     }else if(item.value > 0){
-      div.style.flex = '0 0 14px';   // 기록 있는 날: 폭 있게
+      div.style.flex = '0 0 18px';   // 기록 있는 날: 폭 넓게
     }else{
-      div.style.flex = '0 0 5px';    // 기록 없는 날: 얇게
+      div.style.flex = '0 0 8px';    // 기록 없는 날: 폭 좁게
     }
 
     div.innerHTML = `
-      <div class="bar-val" style="font-size:9px; white-space:nowrap;">${item.value > 0 ? item.value : ''}</div>
-      <div class="bar-col" style="height:${h}px; width:${item.value > 0 || isFixedCount ? '70%' : '100%'}; margin:0 auto;"></div>
-      <div class="bar-lbl" style="font-size:8px; white-space:nowrap;">${item.label}</div>
+      <div class="bar-val" style="font-size:10px; white-space:nowrap;">${item.value > 0 ? item.value : ''}</div>
+      <div class="bar-col" style="height:${h}px; width:70%; margin:0 auto;"></div>
+      <div class="bar-lbl" style="font-size:9px; white-space:nowrap;">${item.label}</div>
     `;
     wrap.appendChild(div);
   });
