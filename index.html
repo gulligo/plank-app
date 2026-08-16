@@ -945,6 +945,12 @@ function finishWorkout(){
 function checkAnnouncements(){
   const remaining = data.goalSec - elapsed;
 
+  if(!said120 && remaining === 120){
+    said120 = true;
+    speak('120초 남았습니다');
+    vibrate([60,40,60]);
+  }
+  
   if(!said60 && remaining === 60){
     said60 = true;
     speak('60초 남았습니다');
