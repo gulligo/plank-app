@@ -699,6 +699,7 @@ let timerInterval = null;
 let countdownTimeout = null;
 let elapsed = 0;
 let goalReached = false;
+let said120 = false;
 let said60 = false;
 let said30 = false;
 let currentPage = 'home';
@@ -980,6 +981,7 @@ function startRealTimer(){
   countdowning = false;
   elapsed = 1;
   goalReached = elapsed >= data.goalSec;
+  said120 = false;
   said60 = false;
   said30 = false;
 
@@ -1324,6 +1326,7 @@ document.getElementById('goalInput').addEventListener('change', e => {
   data.goalSec = v;
   e.target.value = v;
   saveData();
+  said120 = false;
   said60 = false;
   said30 = false;
   goalReached = false;
