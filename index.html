@@ -1072,13 +1072,10 @@ function renderStats(){
 }
 function bubbleSize(sec){
   if(sec <= 0) return 0;
-
-  if(sec <= 60) return 4;    // 60초 = 점처럼 시작
-  if(sec <= 90) return 6;    // 61~90초
-  if(sec <= 120) return 8;   // 91~120초
-  if(sec <= 180) return 10;  // 121~180초
-  if(sec <= 240) return 12;  // 181~240초
-  return 14;                 // 4분 초과
+  const minSize = 14;
+  const maxSize = 46;
+  const ratio = Math.min(sec / 300, 1);
+  return Math.round(minSize + (maxSize - minSize) * ratio);
 }
 function renderCalendar(){
   const grid = document.getElementById('calendarGrid');
